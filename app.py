@@ -2,9 +2,10 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-st.set_page_config(layout="wide", page_title="Quiniela Familiar 2026")
+# Configuración de página amplia para diseño profesional
+st.set_page_config(layout="wide", page_title="World Cup 2026 - Analytics")
 
-# ESTILO CSS PARA EL FORMATO OSCURO
+# ESTILO CSS (Modo Oscuro Corporativo)
 st.markdown("""
     <style>
         .stApp { background-color: #0e1117; }
@@ -19,9 +20,11 @@ st.markdown("""
         .metric-title { font-size: 14px; color: #aaa; margin-bottom: 5px; }
         .metric-value { font-size: 30px; font-weight: bold; }
         h1, h2 { color: #FFD700; }
+        .stTable { color: white; }
     </style>
 """, unsafe_allow_html=True)
 
+# CARGA DE DATOS
 archivo = 'Copa del Mundo-2026 trabajo.xlsx'
 
 try:
@@ -37,12 +40,14 @@ try:
             datos.append({'Participante': nombre_limpio, 'Puntos': punto_limpio})
             
     df_ranking = pd.DataFrame(datos).sort_values(by='Puntos', ascending=False).reset_index(drop=True)
-    df_ranking.index += 1 # Para que el ranking empiece en 1
+    df_ranking.index += 1
 
-    # TÍTULO
-    st.title("🏆 QUINIELA FAMILIAR - WORLD CUP 2026")
+    # TÍTULO PROFESIONAL
+    st.title("🏢 World Cup 2026: Leaderboard & Analytics")
+    st.markdown("**Reporte actualizado al: 13 de junio de 2026** | *Gestión de métricas: Departamento de Operaciones*")
+    st.markdown("---")
     
-    # TARJETAS DE ESTADO (Métricas)
+    # TARJETAS DE ESTADO
     c1, c2, c3 = st.columns(3)
     c1.markdown(f"<div class='metric-card'><div class='metric-title'>👑 Líder de la Quiniela</div><div class='metric-value'>{df_ranking.iloc[0]['Participante']}</div></div>", unsafe_allow_html=True)
     c2.markdown(f"<div class='metric-card'><div class='metric-title'>📈 Puntaje Máximo</div><div class='metric-value'>{df_ranking.iloc[0]['Puntos']} pts</div></div>", unsafe_allow_html=True)
@@ -55,7 +60,8 @@ try:
     
     with col_tab:
         st.subheader("📋 Tabla de Posiciones")
-        st.table(df_ranking.rename(columns={'Puntos': 'Aciertos Totales'}))
+        # Mostramos la tabla renombrando para un look corporativo
+        st.dataframe(df_ranking.rename(columns={'Puntos': 'Aciertos Totales'}), use_container_width=True, hide_index=True)
         
     with col_graf:
         st.subheader("📊 Rendimiento General")
@@ -66,4 +72,4 @@ try:
         st.plotly_chart(fig, use_container_width=True)
 
 except Exception as e:
-    st.error("Error al cargar datos. Asegúrate de que el archivo esté en la ruta correcta.")
+    st.error("Error al cargar los datos. Verifica la ruta del archivo Excel en el repositorio.")
