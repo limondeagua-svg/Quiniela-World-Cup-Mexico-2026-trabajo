@@ -16,12 +16,9 @@ st.markdown("""
             border-radius: 10px;
             text-align: center;
             color: #FFD700;
-            height: 150px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
         }
-        .metric-title { font-size: 14px; color: #aaa; margin-bottom: 10px; }
+        .metric-title { font-size: 14px; color: #aaa; margin-bottom: 5px; }
+        .metric-value { font-size: 30px; font-weight: bold; }
         h1, h2 { color: #FFD700; }
         .stTable { color: white; }
     </style>
@@ -47,46 +44,45 @@ try:
 
     # TÍTULO PROFESIONAL
     st.title("🏢 World Cup 2026: Leaderboard & Analytics")
-    st.markdown("**Reporte actualizado al: 13 de junio de 2026** | *Gestión de métricas: Departamento de Operaciones*")
+    st.markdown("|*Gestión de métricas: DLP*")
     st.markdown("---")
     
-    # TARJETAS DEL PODIO (Jerarquía 1ro, 2do y 3ro con tamaños ajustados)
+   # TARJETAS DEL PODIO (Jerarquía 1ro, 2do y 3ro)
     c1, c2, c3 = st.columns(3)
     
-    # 1er Lugar - El más grande (35px)
+    # 1er Lugar - Más grande
     c1.markdown(f"""
         <div class='metric-card'>
             <div class='metric-title'>🥇 1ER LUGAR</div>
-            <div style='font-size: 35px; font-weight: 800; color: #FFD700; line-height: 1.1;'>{df_ranking.iloc[0]['Participante']}</div>
-            <div style='color: #fff; font-size: 16px; margin-top: 5px;'>{df_ranking.iloc[0]['Puntos']} pts</div>
+            <div style='font-size: 28px; font-weight: bold; color: #FFD700;'>{df_ranking.iloc[0]['Participante']}</div>
+            <div style='color: #aaa;'>{df_ranking.iloc[0]['Puntos']} pts</div>
         </div>
     """, unsafe_allow_html=True)
     
-    # 2do Lugar - Mediano (28px)
+    # 2do Lugar - Mediano
     c2.markdown(f"""
         <div class='metric-card'>
             <div class='metric-title'>🥈 2DO LUGAR</div>
-            <div style='font-size: 28px; font-weight: 700; color: #E0E0E0; line-height: 1.1;'>{df_ranking.iloc[1]['Participante']}</div>
-            <div style='color: #fff; font-size: 16px; margin-top: 5px;'>{df_ranking.iloc[1]['Puntos']} pts</div>
+            <div style='font-size: 22px; font-weight: bold; color: #C0C0C0;'>{df_ranking.iloc[1]['Participante']}</div>
+            <div style='color: #aaa;'>{df_ranking.iloc[1]['Puntos']} pts</div>
         </div>
     """, unsafe_allow_html=True)
     
-    # 3er Lugar - Más pequeño (20px)
+    # 3er Lugar - Un poco más pequeño
     c3.markdown(f"""
         <div class='metric-card'>
             <div class='metric-title'>🥉 3ER LUGAR</div>
-            <div style='font-size: 20px; font-weight: 600; color: #CD7F32; line-height: 1.1;'>{df_ranking.iloc[2]['Participante']}</div>
-            <div style='color: #fff; font-size: 16px; margin-top: 5px;'>{df_ranking.iloc[2]['Puntos']} pts</div>
+            <div style='font-size: 18px; font-weight: bold; color: #CD7F32;'>{df_ranking.iloc[2]['Participante']}</div>
+            <div style='color: #aaa;'>{df_ranking.iloc[2]['Puntos']} pts</div>
         </div>
     """, unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
 
     # TABLA Y GRÁFICA
     col_tab, col_graf = st.columns([1, 2])
     
     with col_tab:
         st.subheader("📋 Tabla de Posiciones")
+        # Mostramos la tabla renombrando para un look corporativo
         st.dataframe(df_ranking.rename(columns={'Puntos': 'Aciertos Totales'}), use_container_width=True, hide_index=True)
         
     with col_graf:
