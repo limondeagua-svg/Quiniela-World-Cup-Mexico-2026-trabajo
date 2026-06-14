@@ -47,13 +47,35 @@ try:
     st.markdown("**Reporte actualizado al: 13 de junio de 2026** | *Gestión de métricas: Departamento de Operaciones*")
     st.markdown("---")
     
-    # TARJETAS DE ESTADO
+   # TARJETAS DEL PODIO (Jerarquía 1ro, 2do y 3ro)
     c1, c2, c3 = st.columns(3)
-    c1.markdown(f"<div class='metric-card'><div class='metric-title'>👑 Líder de la Quiniela</div><div class='metric-value'>{df_ranking.iloc[0]['Participante']}</div></div>", unsafe_allow_html=True)
-    c2.markdown(f"<div class='metric-card'><div class='metric-title'>📈 Puntaje Máximo</div><div class='metric-value'>{df_ranking.iloc[0]['Puntos']} pts</div></div>", unsafe_allow_html=True)
-    c3.markdown(f"<div class='metric-card'><div class='metric-title'>👥 Participantes Activos</div><div class='metric-value'>{len(df_ranking)}</div></div>", unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # 1er Lugar - Más grande
+    c1.markdown(f"""
+        <div class='metric-card'>
+            <div class='metric-title'>🥇 1ER LUGAR</div>
+            <div style='font-size: 28px; font-weight: bold; color: #FFD700;'>{df_ranking.iloc[0]['Participante']}</div>
+            <div style='color: #aaa;'>{df_ranking.iloc[0]['Puntos']} pts</div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # 2do Lugar - Mediano
+    c2.markdown(f"""
+        <div class='metric-card'>
+            <div class='metric-title'>🥈 2DO LUGAR</div>
+            <div style='font-size: 22px; font-weight: bold; color: #C0C0C0;'>{df_ranking.iloc[1]['Participante']}</div>
+            <div style='color: #aaa;'>{df_ranking.iloc[1]['Puntos']} pts</div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # 3er Lugar - Un poco más pequeño
+    c3.markdown(f"""
+        <div class='metric-card'>
+            <div class='metric-title'>🥉 3ER LUGAR</div>
+            <div style='font-size: 18px; font-weight: bold; color: #CD7F32;'>{df_ranking.iloc[2]['Participante']}</div>
+            <div style='color: #aaa;'>{df_ranking.iloc[2]['Puntos']} pts</div>
+        </div>
+    """, unsafe_allow_html=True)
 
     # TABLA Y GRÁFICA
     col_tab, col_graf = st.columns([1, 2])
