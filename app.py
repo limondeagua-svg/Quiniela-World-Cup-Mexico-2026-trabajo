@@ -11,7 +11,7 @@ st.markdown("""
         .stApp { background-color: #0e1117; }
         .metric-card {
             background-color: #1c1f26;
-            border: 1px solid #FFD700;
+            border: 2px solid #FFD700;
             padding: 20px;
             border-radius: 10px;
             text-align: center;
@@ -25,30 +25,32 @@ st.markdown("""
 archivo = 'Copa del Mundo-2026 trabajo.xlsx'
 NOMBRE_PESTANA = 'DIECISEISAVOS'
 
-@st.cache_data(ttl=30)
+@st.cache_data(ttl=10)
 def cargar_datos():
     try:
         # Cargar la pestaña específica
         df = pd.read_excel(archivo, sheet_name=NOMBRE_PESTANA, header=None, dtype=str)
         
-        # --- REFERENCIAS ---
+        # --- REFERENCIAS AJUSTADAS ---
         # Goles Reales: Celda H36 -> Fila índice 35, Columna índice 7 (H)
         try:
             goles_reales = int(float(df.iloc[35, 7]))
         except:
             goles_reales = 0
 
-        # Participantes: Fila 2 (index 1), Columna J en adelante (index 9)
-        nombres = df.iloc[1, 9:].tolist()
-        # Puntos: Fila 3 (index 2)
-        puntos = df.iloc[2, 9:].tolist()
-        # Predicciones Goles: Fila 36 (index 35), Columna J en adelante (index 9)
-        pred_goles = df.iloc[35, 9:].tolist()
+        # Nombres: Fila 2 (index 1), Columna I en adelante (index 8)
+        nombres = df.iloc[1, 8:].tolist()
+        # Puntos: Fila 3 (index 2), Columna I en adelante (index 8)
+        puntos = df.iloc[2, 8:].tolist()
+        # Predicciones Goles: Fila 36 (index 35), Columna I en adelante (index 8)
+        pred_goles = df.iloc[35, 8:].tolist()
         
         datos = []
         for i in range(len(nombres)):
             nombre_limpio = str(nombres[i]).strip()
-            if nombre_limpio == 'nan' or not nombre_limpio:
+            
+            # Filtramos celdas vacías o que no sean participantes
+            if nombre_limpio == 'nan' or not nombre_limpio or nombre_limpio == 'None':
                 continue
                 
             try:
@@ -63,20 +65,22 @@ def cargar_datos():
             datos.append({
                 'Participante': nombre_limpio, 
                 'Puntos': p, 
-                'Predicción Goles': g_p,
                 'Diferencia': dif
             })
             
         # Crear DataFrame y ordenar por Puntos (Desc) y luego Diferencia (Asc)
-        df_ranking = pd.DataFrame(datos).sort_values(
-            by=['Puntos', 'Diferencia'], 
-            ascending=[False, True]
-        ).reset_index(drop=True)
+        df_ranking = pd.DataFrame(datos)
         
-        df_ranking.index += 1
-        df_ranking['Pos'] = df_ranking.index
-        # Nueva lógica: TOP 11
-        df_ranking['Estado'] = df_ranking['Pos'].apply(lambda x: '✅ TOP 11 - PASA' if x <= 11 else '❌ ELIMINADO')
+        if not df_ranking.empty:
+            df_ranking = df_ranking.sort_values(
+                by=['Puntos', 'Diferencia'], 
+                ascending=[False, True]
+            ).reset_index(drop=True)
+            
+            df_ranking.index += 1
+            df_ranking['Pos'] = df_ranking.index
+            # Nueva lógica: TOP 11
+            df_ranking['Estado'] = df_ranking['Pos'].apply(lambda x: '✅ TOP 11' if x <= 11 else '❌ ELIMINADO')
         
         return df_ranking, goles_reales
 
@@ -88,41 +92,61 @@ def cargar_datos():
 df_ranking, goles_totales_reales = cargar_datos()
 
 if not df_ranking.empty:
-    # TÍTULO E INFO
-    st.title("🏢 World Cup 2026: Leaderboard & Analytics")
+    st.title("🏆 World Cup 2026: Leaderboard & Analytics")
     st.subheader(f"🎯 Fase Actual: {NOMBRE_PESTANA}")
     st.write(f"📊 **Goles Reales del Torneo (Celda H36):** {goles_totales_reales}")
     st.markdown("---")
     
-    # TARJETAS DEL PODIO
+    # TARJETAS DEL PODIO (1ro al Centro, 2do Izquierda, 3ro Derecha)
     c1, c2, c3 = st.columns(3)
-    for i in range(3):
-        if len(df_ranking) > i:
-            emoji = ["🥇", "🥈", "🥉"][i]
-            color = ["#FFD700", "#C0C0C0", "#CD7F32"][i]
-            [c1, c2, c3][i].markdown(f"""
-                <div class='metric-card' style='border-color: {color};'>
-                    <div class='metric-title'>{emoji} {i+1}ER LUGAR</div>
-                    <div style='font-size: 24px; font-weight: bold; color: {color};'>{df_ranking.iloc[i]['Participante']}</div>
-                    <div style='font-size: 20px;'>{df_ranking.iloc[i]['Puntos']} pts</div>
-                    <div style='font-size: 12px; color: #aaa;'>Dif. Goles: {df_ranking.iloc[i]['Diferencia']}</div>
+    
+    # 2do Lugar
+    with c1:
+        if len(df_ranking) >= 2:
+            st.markdown(f"""
+                <div class='metric-card' style='border-color: #C0C0C0; margin-top: 25px;'>
+                    <div class='metric-title'>🥈 2DO LUGAR</div>
+                    <div style='font-size: 22px; font-weight: bold; color: #C0C0C0;'>{df_ranking.iloc[1]['Participante']}</div>
+                    <div style='font-size: 20px;'>{df_ranking.iloc[1]['Puntos']} pts</div>
+                    <div style='font-size: 12px; color: #aaa;'>Dif. Goles: {df_ranking.iloc[1]['Diferencia']}</div>
+                </div>
+            """, unsafe_allow_html=True)
+
+    # 1er Lugar
+    with c2:
+        st.markdown(f"""
+            <div class='metric-card' style='border-width: 4px; box-shadow: 0px 0px 15px #FFD700;'>
+                <div class='metric-title'>🥇 1ER LUGAR</div>
+                <div style='font-size: 28px; font-weight: bold; color: #FFD700;'>{df_ranking.iloc[0]['Participante']}</div>
+                <div style='font-size: 22px;'>{df_ranking.iloc[0]['Puntos']} pts</div>
+                <div style='font-size: 12px; color: #aaa;'>Dif. Goles: {df_ranking.iloc[0]['Diferencia']}</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    # 3er Lugar
+    with c3:
+        if len(df_ranking) >= 3:
+            st.markdown(f"""
+                <div class='podium-card' style='border: 2px solid #CD7F32; padding: 20px; border-radius: 10px; text-align: center; color: #CD7F32; margin-top: 45px;'>
+                    <div style='font-size: 14px; color: #aaa;'>🥉 3ER LUGAR</div>
+                    <div style='font-size: 18px; font-weight: bold;'>{df_ranking.iloc[2]['Participante']}</div>
+                    <div style='font-size: 18px;'>{df_ranking.iloc[2]['Puntos']} pts</div>
                 </div>
             """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
     # TABLA Y GRÁFICA
-    col_tab, col_graf = st.columns([1.2, 2])
+    col_tab, col_graf = st.columns([1, 2])
     
     with col_tab:
-        st.subheader("📋 Clasificación (Top 11)")
-        # Solo mostramos columnas clave para la tabla
+        st.subheader("📋 Clasificación Oficial")
         st.dataframe(
             df_ranking[['Pos', 'Participante', 'Puntos', 'Diferencia', 'Estado']], 
             use_container_width=True, 
             hide_index=True
         )
-        st.info("Criterio de desempate: Cercanía al total real de goles (Celda H36).")
+        st.info("Desempate: El que más se acerca a los goles reales (H36).")
         
     with col_graf:
         st.subheader("📊 Gráfico de Rendimiento")
@@ -131,32 +155,27 @@ if not df_ranking.empty:
             x='Participante', 
             y='Puntos', 
             color='Estado',
-            color_discrete_map={'✅ TOP 11 - PASA': '#FFD700', '❌ ELIMINADO': '#444444'},
-            category_orders={"Participante": df_ranking['Participante'].tolist()},
-            text='Puntos',
-            hover_data=['Diferencia']
+            color_discrete_map={'✅ TOP 11': '#FFD700', '❌ ELIMINADO': '#444444'},
+            text='Puntos'
         )
         fig.update_layout(
             plot_bgcolor='rgba(0,0,0,0)', 
             paper_bgcolor='rgba(0,0,0,0)',
             font_color="white", 
-            showlegend=True,
-            legend_title_text=''
+            showlegend=True
         )
-        fig.update_traces(textposition='outside')
         
         # Línea de corte en el puesto 11
         if len(df_ranking) >= 11:
             corte = df_ranking.iloc[10]['Puntos']
-            fig.add_hline(y=corte, line_dash="dot", line_color="white", annotation_text="Línea de Corte (11º)")
+            fig.add_hline(y=corte, line_dash="dot", line_color="white", annotation_text="Línea de Corte")
 
         st.plotly_chart(fig, use_container_width=True)
 
-    # Botón lateral de actualización
     with st.sidebar:
         if st.button('🔄 Refrescar Datos'):
             st.cache_data.clear()
             st.rerun()
 
 else:
-    st.warning(f"Esperando datos en la pestaña '{NOMBRE_PESTANA}'...")
+    st.warning(f"No se encontraron datos en la pestaña '{NOMBRE_PESTANA}'. Revisa la columna I en adelante.")
